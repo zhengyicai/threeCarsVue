@@ -38,22 +38,20 @@ let routes = [
         children: [
             { path: '/homeIndex',component: resolve => require(['./views/desktop/HomeIndex.vue'], resolve),  name: '主页' },
             { path: '/community',component: resolve => require(['./views/desktop/Community.vue'], resolve), name: '小区管理' },
-            { path: '/building',component: resolve => require(['./views/desktop/Building.vue'], resolve), name: '楼栋管理' },
-            { path: '/room',component: resolve => require(['./views/desktop/Room.vue'], resolve), name: '房间管理' },
+            
+            
             { path: '/resident',component: resolve => require(['./views/desktop/Resident.vue'], resolve), name: '住户管理' },
-            { path: '/equipmentRecord',component: resolve => require(['./views/desktop/EquipmentRecord.vue'], resolve), name: '设备开锁记录' },
-            { path: '/material',component: resolve => require(['./views/desktop/Material.vue'], resolve), name: '素材管理' },
-            { path: '/equipment',component: resolve => require(['./views/desktop/Equipment.vue'], resolve), name: '设备管理' },
-            { path: '/equipmentAdd',component: resolve => require(['./views/desktop/EquipmentAdd.vue'], resolve), name: '添加设备' },
-            { path: '/equipmentAuth',component: resolve => require(['./views/desktop/EquipmentAuth.vue'], resolve), name: '发货管理' },
-            { path: '/equipmentAgeetAuth',component: resolve => require(['./views/desktop/EquipmentAgeetAuth.vue'], resolve), name: '代理商发货管理' },
-            { path: '/firm',component: resolve => require(['./views/desktop/Firm.vue'], resolve), name: '代理商管理' },
+            
+            
+            
+            
+            
+            
+            
             // { path: '/work',component: resolve => require(['./views/desktop/Work.vue'], resolve), name: '工程商管理' },
             { path: '/worklist',component: resolve => require(['./views/desktop/WorkList.vue'], resolve), name: '用户管理列表' },
             { path: '/residentList',component: resolve => require(['./views/desktop/ResidentList.vue'], resolve), name: '用户管理列表' },
             { path: '/authlist',component: resolve => require(['./views/desktop/AuthList.vue'], resolve), name: '授权管理列表' },
-            { path: '/lockRecord',component: resolve => require(['./views/desktop/LockRecord.vue'], resolve), name: '开锁记录管理' },
-            { path: '/adminCard',component: resolve => require(['./views/desktop/AdminCard.vue'], resolve), name: '物业房卡管理' },
             { path: '/tableTest', component: TableTest, name: '列表测试' },
             { path: '/form', component: Form, name: 'Form' },
             { path: '/user', component: user, name: '列表' },
