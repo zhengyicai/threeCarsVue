@@ -29,15 +29,10 @@
 			</el-table-column>
 			<el-table-column prop="mobile" label="手机号" width="150" sortable>
 			</el-table-column>
-			<el-table-column prop="communityName" label="所属小区" width="150" sortable>
-			</el-table-column>
 			<el-table-column  label="创建时间" min-width="170">
 				<template slot-scope="scope">{{ scope.row.createTime | moment('YYYY-MM-DD HH:mm:ss') }}</template>
 			</el-table-column>
 
-            <el-table-column  label="生效时间" min-width="170">
-				<template slot-scope="scope">{{ scope.row.lastTime | moment('YYYY-MM-DD HH:mm:ss') }}</template>
-			</el-table-column>
             <el-table-column prop="wxId" label="微信" width="330" sortable>
 			</el-table-column>
             <!-- <el-table-column prop="imgUrl" label="图片地址" width="170" sortable>
@@ -62,13 +57,14 @@
 				<el-button size="small" type="primary"  v-if='scope.row.sysUserId=="" ||  scope.row.sysUserId ==null' @click="addAdmin(scope.$index,scope.row)">新增物业</el-button>
 				<el-button size="small" type="warning"  v-if='scope.row.sysUserId!="" ||  scope.row.sysUserId !=null' @click="editAdmin(scope.$index,scope.row)">修改物业</el-button>
                 <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button> -->
-                <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">授权设备</el-button>
-                <el-button size="small" type="primary"   @click="updateRoom(scope.row)">房卡管理</el-button>
-                <!-- <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">住房信息</el-button> -->
+                <!-- <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">授权设备</el-button>
+                <el-button size="small" type="primary"   @click="updateRoom(scope.row)">房卡管理</el-button> -->
+                <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">住房信息</el-button>
                 <!-- <el-button size="small" type="danger" @click="deleteRow(scope.$index,scope.row)">删除</el-button> -->
+
                 <el-button size="small" type="warning" v-if="scope.row.state==='10'"   @click="updateState(scope.row,'20')" >禁用</el-button>
                 <el-button size="small" type="success" v-if="scope.row.state==='20'" @click="updateState(scope.row,'10')" >启用</el-button>
-                <el-button size="small" type="info" v-if="scope.row.state==='30'"  @click="updateState(scope.row,'10')">授权</el-button>
+                
 				</template>
 			</el-table-column>
 		</el-table>
@@ -131,29 +127,47 @@
 
 
 
-
-         <el-dialog   title="房卡管理" :visible.sync="dialogFormVisibleRoom" >
-			<el-form ref="subData" :model="subData1" label-width="100px" @submit.prevent="onSubmit" style="margin:0px;">
-                <el-form-item label="卡号1">
-                        <el-input style="width:60%"  v-model="one" type="number" placeholder="请输入10位数的卡号"></el-input>
-                </el-form-item>
-                <el-form-item label="卡号2">
-                        <el-input style="width:60%" v-model="two"  placeholder="请输入10位数的卡号"></el-input>
-                </el-form-item>
-                <el-form-item label="卡号3">
-                        <el-input style="width:60%"  v-model="three"  placeholder="请输入10位数的卡号"></el-input>
-                </el-form-item>
-                <el-form-item label="卡号4">
-                        <el-input style="width:60%"  v-model="four"  placeholder="请输入10位数的卡号"></el-input>
-                </el-form-item>
-                <el-form-item label="卡号5">
-                        <el-input style="width:60%" v-model="free"  placeholder="请输入10位数的卡号"></el-input>
-                </el-form-item>
-               
-                   
-			</el-form>	
+         <el-dialog   title="地址管理" :visible.sync="dialogFormVisible" width="90%" >
+			 <el-table  style="width: 100%" :data="addressList">
+                        <el-table-column
+                            prop="contactName"
+                            label="联系人"
+                            width="120">
+                        </el-table-column>
+                        <el-table-column
+                            prop="contactMobile"
+                            label="联系电话"
+                            width="130">
+                        </el-table-column>
+                        <el-table-column
+                            prop="city"
+                            label="城市"
+                            width="120">
+                        </el-table-column>
+                        <el-table-column
+                            prop="country"
+                            label="区县"
+                            width="120">
+                        </el-table-column>
+                        <el-table-column
+                            prop="town"
+                            label="城镇"
+                            width="120">
+                        </el-table-column>
+                        <el-table-column
+                            prop="detail"
+                            label="详细地址"
+                            width="228">
+                        </el-table-column>
+                         <el-table-column
+                         
+                            label="默认"
+                            width="80">
+                            <template slot-scope="scope">{{ isTrue(scope.row.type)}}</template>
+                        </el-table-column>
+                        </el-table>
 			<div slot="footer" class="dialog-footer">
-				<el-button @click="dialogFormVisibleRoom = false">取 消</el-button>
+				<el-button @click="dialogFormVisible = false">取 消</el-button>
 				<el-button  type="primary" @click="open1()">确 定</el-button>
 			</div>
         </el-dialog>
@@ -170,7 +184,8 @@
 	import { url } from '../../api/api';
 	import {timeFormat} from '../../api/format';
 	import {dateFormat} from '../../api/format';
-	import {state} from '../../api/format';
+    import {state} from '../../api/format';
+    import {isTrue} from '../../api/format';
 	import { PageSize } from '../../api/api';
 	import moment from 'moment';
   	export default {
@@ -178,7 +193,8 @@
     methods: {
 	  dateFormat,	
 	  timeFormat,
-	  state,	
+      state,	
+      isTrue,
       handleSizeChange(val) {
 		console.log(`每页 ${val} 条`);
 		
@@ -214,8 +230,8 @@
       },
       showRelationPanel(index, rows){
           this.dialogFormVisible= true;
-          this.communityId = rows.communityId;
-                this.residentId = rows.id;
+        
+                this.residentId = rows.wxId;
                
                 this.loadRooms();
       },
@@ -225,20 +241,25 @@
       
 
       loadRooms(){
-         
-            var room = {
-                    residentId: this.residentId,
-                    communityId: this.communityId
-                };
-            RequestGet("/resident/findResidentRooms",room).then(response => {
-						if(response.code == '0000'){
-								 this.residRooms = response.data;
-						 }
+          
+         RequestGet("/address/findAllWxId",{wxId:this.residentId}).then(response => {
+            if(response.code == '0000'){
+                    
+                    
+                        this.dialogFormVisible = true;    
+                        this.addressList = response.data;
+                    
+            }
 					
-            }).catch(error => {
-                            this.$router.push({ path: '/login' });
-                            
-            })  
+        }).catch(error => {
+                        this.$router.push({ path: '/login' });
+                        
+        })
+
+
+          //this.addressList
+         
+          
       },  
       updateState(rows,state){
 
@@ -688,6 +709,7 @@
         threeSum:false,
         fourSum:false,
         freeSum:false,
+        addressList:[],
        
       };
     }
@@ -695,7 +717,7 @@
 </script>
 <style>
 	.el-dialog--small {
-		 width: 30%; 
+		 width: 50%; 
 	}
     .span {
         position:relative;

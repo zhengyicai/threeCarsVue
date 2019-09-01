@@ -20,6 +20,11 @@ export function state(row){
           return date =='10'?'正常':date =='20'?'禁用':'';
 };
 
+export function isTrue(row){
+    var date = row;
+          return date =='10'?'是':date =='20'?'否':'';
+};
+
 export function recordType(row){
     var data = row;
     var str = "";
