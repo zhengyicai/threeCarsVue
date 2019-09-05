@@ -18,9 +18,7 @@
 		<el-table :data="datalist" highlight-current-row v-loading="listLoading" style="width: 100%;">
 		
 			
-			<el-table-column prop="communityNo" label="用户编号" width="120" sortable>
-			</el-table-column>
-			<el-table-column prop="communityName" label="用户名称" width="120" sortable>
+			<el-table-column prop="communityNo" label="区域编号" width="120" sortable>
 			</el-table-column>
 			<el-table-column prop="province" label="省份" width="120" sortable>
 			</el-table-column>
@@ -28,12 +26,14 @@
 			</el-table-column>
 			<el-table-column prop="area" label="区县" min-width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="address" label="地址" min-width="120" sortable>
+			<el-table-column prop="address" label="城镇" min-width="180" sortable>
 			</el-table-column>
-			<!-- <el-table-column prop="createTime" :formatter="dateFormat"  label="创建时间" min-width="120" sortable>
-						
-			</el-table-column> -->
-
+			<el-table-column prop="name" label="车夫" min-width="120" sortable>
+			</el-table-column>
+			<el-table-column prop="mobile" label="联系电话" min-width="120" sortable>
+			</el-table-column>
+			
+			
 			<el-table-column  label="创建时间" min-width="120">
 				<template slot-scope="scope">{{ scope.row.createTime | moment('YYYY-MM-DD') }}</template>
 			</el-table-column>
@@ -46,10 +46,7 @@
 			<el-table-column label="物业员状态" min-width="110">
 				<template slot-scope="scope">{{ state(scope.row.userStatus)}}</template>
 			</el-table-column> -->
-			<el-table-column prop="code" label="代理商编号" min-width="110">
-			</el-table-column>
-			<el-table-column prop="userWorkName" label="代理商名称" min-width="110">
-			</el-table-column>
+		
 
 
 			
@@ -81,10 +78,10 @@
 
 		 <el-dialog   :title="formtitle" :visible.sync="dialogFormVisible" >
 			<el-form ref="form" :model="form" label-width="100px" @submit.prevent="onSubmit" style="margin:20px;">
-				<!-- <el-form-item label="小区编号">
+				<!-- <el-form-item label="项目编号">
 					<el-input v-model="form.communityNo"></el-input>
 				</el-form-item> -->
-				<el-form-item label="*小区名字">
+				<el-form-item label="*项目名字">
 					<el-input v-model="form.communityName"></el-input>
 				</el-form-item>
 				<!-- <el-form-item label="*主机数">
@@ -110,8 +107,15 @@
 					</el-select>
 				</el-form-item>
 
-				<el-form-item label="地址">
+				<el-form-item label="城镇">
 					<el-input v-model="form.address"></el-input>
+				</el-form-item>
+
+
+				<el-form-item label="绑定车夫">
+					<el-select v-model="form.residentId" placeholder="请选择车夫">
+						<el-option :label="item.name" :key="item.id" :value="item.id" v-for="item in residentTypes">{{item.name+"("+item.mobile+")"}}</el-option>
+					</el-select>
 				</el-form-item>
 				<el-form-item label="状态">
 					<el-radio-group v-model="form.state">
@@ -264,11 +268,14 @@
             });
       },
       edit(index,rows){
+		//this.form.residentId = "";
         this.dialogFormVisible = true;   
 		this.form = rows;
-		this.formtitle ="修改小区";
-		this.loadCity(this.form.provinceCode);
-		this.loadArea(this.form.cityCode);
+		//this.residentTypes = [];
+		this.residentId = rows.residentId;
+		this.formtitle ="修改项目";
+		this.getUsers();
+		
 		//alert(this.form.province+"city"+this.form.city+"province"+this.form.area);
 		// this.selectProvince(this.form.provinceCode);
 		// this.selectCity(this.form.cityCode);
@@ -285,27 +292,41 @@
       add(){
 		this.dialogFormVisible = true;
 		
-		this.formtitle ="新增小区";   
+		this.formtitle ="新增项目";   
 		this.form = {
 			"provinceCode":"",
 			"cityCode":"",
 			"areaCode":"",
 			"code":sessionStorage.getItem("code"),
 			"sysWorkId":sessionStorage.getItem("userId"),
-			"state":"10"			
+			"state":"10",
+			"communityName":"",
+			"residentId":""
+
+
 		};
+		this.getUsers();
         
       },
       getUsers(){
+		  RequestGet("/resident/residentType").then(response => {
+						if(response.code == '0000'){
+								this.residentTypes = response.data;
+						 }
+					
+					}).catch(error => {
+						 this.$router.push({ path: '/login' });
+						
+			})  
 
       },
       open2() {
-		  	if(this.formtitle =="新增小区"){
+		  	if(this.formtitle =="新增项目"){
 
 				  if(this.validate1() == false){
 					  return;
 				  }
-				  this.$confirm('新增小区, 是否继续?', '提示', {
+				  this.$confirm('新增项目, 是否继续?', '提示', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
@@ -346,7 +367,7 @@
 				 if(this.validate1() == false){
 					  return;
 				  }
-				this.$confirm('修改小区, 是否继续?', '提示', {
+				this.$confirm('修改项目, 是否继续?', '提示', {
 				confirmButtonText: '确定',
 				cancelButtonText: '取消',
 				type: 'warning'
@@ -724,33 +745,33 @@
 
 
 	  },	
-	  validate1(){  //新增（修改）小区
+	  validate1(){  //新增（修改）项目
 	
 		
-		if(this.form.communityName =="" || this.form.communityName == null){
-				//this.warningText = ;
-				this.$message({
-					type: 'error',
-					message: "小区名字不能为空"
-				});          
-				return false;
-		}
+		// if(this.form.communityName =="" || this.form.communityName == null){
+		// 		//this.warningText = ;
+		// 		this.$message({
+		// 			type: 'error',
+		// 			message: "项目名字不能为空"
+		// 		});          
+		// 		return false;
+		// }
 
-		if(this.form.communityName.trim().length =="" ){
-				//this.warningText = ;
-				this.$message({
-					type: 'error',
-					message: "小区名字不能为空"
-				});          
-				return false;
-		}
-		if(this.form.communityName.length>20){
-				this.$message({
-					type: 'error',
-					message: "小区名字长度过大"
-				});    
-				return false;				
-		}
+		// if(this.form.communityName.trim().length =="" ){
+		// 		//this.warningText = ;
+		// 		this.$message({
+		// 			type: 'error',
+		// 			message: "项目名字不能为空"
+		// 		});          
+		// 		return false;
+		// }
+		// if(this.form.communityName.length>20){
+		// 		this.$message({
+		// 			type: 'error',
+		// 			message: "项目名字长度过大"
+		// 		});    
+		// 		return false;				
+		// }
 		// if(this.form.masterNum <=0 || this.form.masterNum == null){
 		// 		this.$message({
 		// 			type: 'error',
@@ -786,6 +807,21 @@
 				});
 				return false;
 		}
+		if(this.form.address.trim().length ==0 || this.form.address == null){
+				this.$message({
+					type: 'error',
+					message: "请输入城镇"
+				});
+				return false;
+		}
+		if(this.form.residentId.trim().length ==0 || this.form.residentId == null){
+				this.$message({
+					type: 'error',
+					message: "请选择车夫"
+				});
+				return false;
+		}
+		
 
 	},
 
@@ -818,6 +854,7 @@
 		citys:[], //获取市
 		areas:[], //获取区
 		formtitle:"",
+		residentTypes:[], //获取车夫列表
 		formAdmintitle:"",
 		dialogFormAdminVisible:false,//物业
 		dialogFormAdminUpdateVisible:false,

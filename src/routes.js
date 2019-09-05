@@ -37,7 +37,7 @@ let routes = [
         iconCls: 'fa fa-id-card-o',//图标样式class
         children: [
             { path: '/homeIndex',component: resolve => require(['./views/desktop/HomeIndex.vue'], resolve),  name: '主页' },
-            { path: '/community',component: resolve => require(['./views/desktop/Community.vue'], resolve), name: '小区管理' },
+            { path: '/community',component: resolve => require(['./views/desktop/Community.vue'], resolve), name: '项目管理' },
             
             
             { path: '/resident',component: resolve => require(['./views/desktop/Resident.vue'], resolve), name: '住户管理' },
@@ -51,6 +51,9 @@ let routes = [
             // { path: '/work',component: resolve => require(['./views/desktop/Work.vue'], resolve), name: '工程商管理' },
             { path: '/worklist',component: resolve => require(['./views/desktop/WorkList.vue'], resolve), name: '用户管理列表' },
             { path: '/residentList',component: resolve => require(['./views/desktop/ResidentList.vue'], resolve), name: '用户管理列表' },
+            { path: '/orderList',component: resolve => require(['./views/desktop/OrderList.vue'], resolve), name: '订单管理列表' },
+
+           
             { path: '/authlist',component: resolve => require(['./views/desktop/AuthList.vue'], resolve), name: '授权管理列表' },
             { path: '/tableTest', component: TableTest, name: '列表测试' },
             { path: '/form', component: Form, name: 'Form' },
