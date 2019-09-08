@@ -52,8 +52,7 @@ let routes = [
             { path: '/worklist',component: resolve => require(['./views/desktop/WorkList.vue'], resolve), name: '用户管理列表' },
             { path: '/residentList',component: resolve => require(['./views/desktop/ResidentList.vue'], resolve), name: '用户管理列表' },
             { path: '/orderList',component: resolve => require(['./views/desktop/OrderList.vue'], resolve), name: '订单管理列表' },
-
-           
+            { path: '/orderParameter',component: resolve => require(['./views/desktop/OrderParameter.vue'], resolve), name: '商品参数设置' },
             { path: '/authlist',component: resolve => require(['./views/desktop/AuthList.vue'], resolve), name: '授权管理列表' },
             { path: '/tableTest', component: TableTest, name: '列表测试' },
             { path: '/form', component: Form, name: 'Form' },
@@ -69,6 +68,8 @@ let routes = [
             { path: '/message',component: resolve => require(['./views/system/Message.vue'], resolve),  name: '消息管理' },
             { path: '/notice',component: resolve => require(['./views/system/Notice.vue'], resolve), name: '公告管理' },
             { path: '/parameter',component: resolve => require(['./views/system/Parameter.vue'], resolve), name: '参数设置' },
+            { path: '/sysPush',component: resolve => require(['./views/system/SysPush.vue'], resolve), name: '推送管理' },
+            { path: '/sysNotice',component: resolve => require(['./views/system/SysNotice.vue'], resolve), name: '公告设置' },
             { path: '/role',component: resolve => require(['./views/system/Role.vue'], resolve), name: '权限管理' },
             { path: '/updatePw',component: resolve => require(['./views/system/UpdatePw.vue'], resolve), name: '修改密码' },
             { path: '/userInfo',component: resolve => require(['./views/system/UserInfo.vue'], resolve), name: '账户管理' },

@@ -35,6 +35,16 @@ export function isOrderState(row){
           return date =='10'?'待上门取件':date =='20'?'已上门取件':date =='30'?'交易成功':date =='40'?'交易失败':date =='50'?'订单取消':"";
 };
 
+export function isNoticeState(row){
+    var date = row;
+          return date =='10'?'全量公告':date =='20'?'项目公告':"";
+};
+
+export function isPushState(row){
+    var date = row;
+          return date =='10'?'全量推送':date =='20'?'项目推送':"个人推送";
+};
+
 
 
 
