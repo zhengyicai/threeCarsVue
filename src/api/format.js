@@ -25,6 +25,11 @@ export function isTrue(row){
           return date =='10'?'是':date =='20'?'否':'';
 };
 
+export function isCars(row){
+    var date = row;
+          return date =='10'?'否':date =='20'?'是':'';
+};
+
 export function isWeight(row){
     var date = row;
           return date =='10'?'20~50斤':date =='20'?'51~100斤':date =='30'?'101~500斤':date =='40'?'500斤以上':'';
@@ -32,7 +37,7 @@ export function isWeight(row){
 
 export function isOrderState(row){
     var date = row;
-          return date =='10'?'待上门取件':date =='20'?'已上门取件':date =='30'?'交易成功':date =='40'?'交易失败':date =='50'?'订单取消':"";
+          return date =='10'?'待上门取件':date =='20'?'已上门取件':date =='30'?'取消订单':date =='40'?'确认订单':date =='50'?'交易成功':"";
 };
 
 export function isNoticeState(row){

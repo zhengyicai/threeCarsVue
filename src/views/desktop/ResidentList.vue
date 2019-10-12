@@ -47,8 +47,11 @@
 			<el-table-column  label="状态" min-width="120">
 				<template slot-scope="scope">{{ state(scope.row.state)}}</template>
 			</el-table-column>
-            <el-table-column prop="remark" label="留言" width="170" sortable>
+            <el-table-column  label="车夫" min-width="120">
+				<template slot-scope="scope">{{ isCars(scope.row.residentType)}}</template>
 			</el-table-column>
+            <!-- <el-table-column prop="remark" label="留言" width="170" sortable>
+			</el-table-column> -->
 			
 			
 			<el-table-column label="操作" min-width="250">
@@ -56,10 +59,11 @@
 				<!-- <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">编辑</el-button>
 				<el-button size="small" type="primary"  v-if='scope.row.sysUserId=="" ||  scope.row.sysUserId ==null' @click="addAdmin(scope.$index,scope.row)">新增物业</el-button>
 				<el-button size="small" type="warning"  v-if='scope.row.sysUserId!="" ||  scope.row.sysUserId !=null' @click="editAdmin(scope.$index,scope.row)">修改物业</el-button>
-                <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button> -->
+                <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button> --> 
                 <!-- <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">授权设备</el-button>
                 <el-button size="small" type="primary"   @click="updateRoom(scope.row)">房卡管理</el-button> -->
-                <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">住房信息</el-button>
+                 <el-button size="small" type="primary" @click="setRow(scope.$index, scope.row)">设为车夫</el-button>
+                <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">地址</el-button>
                 <!-- <el-button size="small" type="danger" @click="deleteRow(scope.$index,scope.row)">删除</el-button> -->
 
                 <el-button size="small" type="warning" v-if="scope.row.state==='10'"   @click="updateState(scope.row,'20')" >禁用</el-button>
@@ -186,6 +190,7 @@
 	import {dateFormat} from '../../api/format';
     import {state} from '../../api/format';
     import {isTrue} from '../../api/format';
+    import {isCars} from '../../api/format';
 	import { PageSize } from '../../api/api';
 	import moment from 'moment';
   	export default {
@@ -195,6 +200,7 @@
 	  timeFormat,
       state,	
       isTrue,
+      isCars,
       handleSizeChange(val) {
 		console.log(`每页 ${val} 条`);
 		
@@ -225,7 +231,51 @@
            
 
       },
-      deleteItem(){
+      setRow(index, rows){
+          this.$confirm('确认该操作, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+            }).then(() => {
+               
+
+                var opt ={
+                   
+                    id:rows.id,
+                    residentType:"20"
+                }
+
+                RequestPost("/resident/updateCars",opt).then(response => {
+                            
+                          
+                    if(response.code=='0000'){
+                        this.$message({
+                            message: response.message,
+                            type: 'success'
+                        });  
+                        this.dialogFormVisible = false;
+                    }else{
+                        this.$message({
+                            message: response.message,
+                            type: 'error'
+                        });
+                    }
+                    this.loadData();
+                }).catch(error => {
+                this.$router.push({ path: '/login' });
+                })
+
+
+                
+                this.dialogFormVisible = false;
+                
+                }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });          
+            });
+
 
       },
       showRelationPanel(index, rows){

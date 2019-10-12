@@ -78,7 +78,7 @@
 	export default {
 		data() {
 			return {
-				sysName:'AI屏管理平台',
+				sysName:'爱回收管理平台',
 				sysNo:'v1.0.0',
 				collapsed:false,
 				sysUserName: '',

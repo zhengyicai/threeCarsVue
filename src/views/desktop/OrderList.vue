@@ -59,15 +59,15 @@
 			</el-table-column> -->
 			
 			<el-table-column  label="状态" min-width="120">
-				<template slot-scope="scope">{{ isOrderState(scope.row.state)}}</template>
+				<template slot-scope="scope">{{ isOrderState(scope.row.type)}}</template>
 			</el-table-column>
-            <el-table-column prop="buyPrice" label="用户成交总价" width="150" sortable>
+            <el-table-column prop="buyprice" label="用户成交总价" width="150" sortable>
 			</el-table-column>
-            <el-table-column prop="sellPrice" label="回收总价" width="120" sortable>
+            <el-table-column prop="sellprice" label="回收总价" width="120" sortable>
 			</el-table-column>
 			
 			
-			<el-table-column label="操作" min-width="80">
+			<el-table-column label="操作" min-width="150">
 				<template scope="scope">
 				<!-- <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">编辑</el-button>
 				<el-button size="small" type="primary"  v-if='scope.row.sysUserId=="" ||  scope.row.sysUserId ==null' @click="addAdmin(scope.$index,scope.row)">新增物业</el-button>
@@ -75,6 +75,7 @@
                 <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button> -->
                 <!-- <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">授权设备</el-button>
                 <el-button size="small" type="primary"   @click="updateRoom(scope.row)">房卡管理</el-button> -->
+                <el-button size="small" type="primary"   @click="updateRoom(scope.row)">结算</el-button>
                 <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">详情</el-button>
                 <!-- <el-button size="small" type="danger" @click="deleteRow(scope.$index,scope.row)">删除</el-button> -->
 
@@ -110,6 +111,21 @@
                     </el-table-column>
                     
             </el-table>
+			
+        </el-dialog>
+
+        <el-dialog   title="结算金额" :visible.sync="dialogPrice" >
+			<el-form ref="subData"  label-width="100px" @submit.prevent="onSubmit" style="margin:0px;">
+                <el-form-item label="结算金额">
+                        <el-input style="width:60%"  v-model="sellPrice" type="number" placeholder="请输入结算金额"></el-input>
+                </el-form-item>
+                
+			</el-form>	
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="dialogPrice = false">取 消</el-button>
+				<el-button  type="primary" @click="open3()">确 定</el-button>
+			</div>
+
 			
         </el-dialog>
 
@@ -367,70 +383,14 @@
     },
       updateRoom(rows){
          
-         this.subData1 = {};
-         this.subData = rows;
-
-         this.one = "";
-         this.two = "";
-         this.three = "";
-         this.four = "";
-         this.free = "";
-         this.residentId = rows.id;
+         this.dialogPrice = true;
+         this.orderId = rows.id;
+         this.sellPrice = rows.sellprice;
 
        
-         RequestGet("/resident/findResidentCount",{residentId:this.residentId}).then(response => {
-            if(response.code == '0000'){
-                    if(response.data == 0){
-                        this.dialogFormVisibleRoom = false;    
-                        this.$message({
-								message: "请先授权设备",
-								type: 'error'
-						});  
-                    }else{
-                        this.dialogFormVisibleRoom = true;    
-                    }
-            }
-					
-        }).catch(error => {
-                        this.$router.push({ path: '/login' });
-                        
-        })
 
      
-         //this.subData1.roomId  = rows.id;
-     
-
-
-         RequestGet("/resident/findCard",{residentId:rows.id}).then(response => {
-                    if(response.code=='0000'){
-                          if(response.data.length>0){
-                              for(var i = 0 ;i<response.data.length;i++){
-                                    if(i ==0){
-                                      this.one = response.data[i].cardNo+"";
-                                  }else if(i ==1){
-                                      this.two = response.data[i].cardNo+"";
-                                  }else if(i ==2){
-                                      this.three = response.data[i].cardNo+"";
-                                  }else if(i ==3){
-                                      this.four = response.data[i].cardNo+"";
-                                  }else if(i ==4){
-                                      this.free = response.data[i].cardNo+"";
-                                  }
-                              }
-                          }
-                          
-
-
-                    }else{
-                        this.$message({
-                            message: response.message,
-                            type: 'error'
-                        });
-                    }
-                // this.loadCommunityData();
-        }).catch(error => {
-        this.$router.push({ path: '/login' });
-        })
+         
          
 
     },  
@@ -474,6 +434,40 @@
           
       },
       getUsers(){},
+      open3(){
+          
+            var person = {
+                id:this.orderId,
+                sellprice:this.sellPrice,
+                type:"50"
+            }
+
+           RequestPost("/order/updatesell",person).then(response => {
+						
+						//this.logining = false; 
+            if(response.code=='0000'){
+                this.$message({
+                    message: response.message,
+                    type: 'success'
+                });  
+                this.dialogPrice = false;
+            }else{
+                this.$message({
+                    message: response.message,
+                    type: 'error'
+                });
+                this.dialogPrice = false;
+            }
+            this.loadData();
+        }).catch(error => {
+        this.$router.push({ path: '/login' });
+        })
+          
+
+
+
+
+      },
 
 
       
@@ -694,7 +688,9 @@
         isEdit:true, //是否禁用
         dialogFormVisible:false,
         dialogFormVisibleEqu:false,  //显示设备列表
-        
+        dialogPrice:false, //显示结算界面
+        sellPrice:0,
+        orderId:"",
         parentMenuOneData:[],
         parentMenuTwoData:[],
         selectedTwoData:[],

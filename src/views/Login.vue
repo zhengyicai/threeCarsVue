@@ -3,7 +3,7 @@
     <div class="login-wrap">
             <div class="ms-login">
       <el-form :model="ruleForm2" :rules="rules2" ref="ruleForm2" label-position="left" label-width="0px" class="demo-ruleForm login-container"  >
-        <h3 class="title">AI屏管理平台</h3>
+        <h3 class="title">爱回收管理平台</h3>
         <el-form-item prop="account">
           <el-input type="text" @keyup.enter.native="handleSubmit2" v-model="data.loginName" auto-complete="off" placeholder="账号"></el-input>
         </el-form-item>

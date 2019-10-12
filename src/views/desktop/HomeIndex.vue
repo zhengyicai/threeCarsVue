@@ -1,5 +1,5 @@
 <template>
-    <p class="page-container">欢迎来到AI屏管理平台~</p>
+    <p class="page-container">欢迎来到爱回收管理平台~</p>
 </template>
 
 <style lang="scss" scoped>
