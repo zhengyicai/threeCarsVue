@@ -7,9 +7,9 @@ import router from '../routes';
 
 let base = '';
 //访问接口服务器
-//export const url  = "http://123.207.121.118:8080/cms";
-export const url  = "http://127.0.0.1:8080/cms";
-export const fileUrls = 'http://123.207.121.118/uploadImages/';
+//export const url  = "http://127.0.0.1:8080/cms";
+export const url  = "http://148.70.40.47:8080/cms";
+export const fileUrls = 'http://148.70.40.47/uploadImages/';
 //export const url  = "http://129.204.214.141:8080/cms";
 export const PageSize  = 10;
 
