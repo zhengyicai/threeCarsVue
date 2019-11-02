@@ -30,7 +30,7 @@
 			</el-table-column>
 			<el-table-column prop="name" label="车夫" min-width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="mobile" label="联系电话" min-width="120" sortable>
+			<el-table-column prop="mobile" label="联系电话" min-width="140" sortable>
 			</el-table-column>
 			
 			
@@ -61,7 +61,9 @@
 				<el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">编辑</el-button>
 				<!-- <el-button size="small" type="primary"  v-if='scope.row.sysUserId=="" ||  scope.row.sysUserId ==null' @click="addAdmin(scope.$index,scope.row)">新增物业</el-button>
 				<el-button size="small" type="warning"  v-if='scope.row.sysUserId!="" &&  scope.row.sysUserId !=null' @click="editAdmin(scope.$index,scope.row)">修改物业</el-button> -->
-                <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button>
+                <!-- <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button> -->
+				<el-button size="small"   v-if='scope.row.state=="10"' type="warning" @click="deleteRow(scope.$index, scope.row)">禁用</el-button>
+                 <el-button size="small"  v-if='scope.row.state=="20"'  type="primary" @click="showRow(scope.$index, scope.row)">启用</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -248,16 +250,67 @@
 
 
 	  },
+	  showRow(index, rows) {
+      
+            // this.$message({
+            //     type: 'success',
+            //     message: '删除成功!'
+            // });
+            rows.state = '10';
+
+           RequestPost("/community/update",rows).then(response => {
+						
+						//this.logining = false; 
+				if(response.code=='0000'){
+					this.$message({
+						message: response.message,
+						type: 'success'
+					});  
+					this.dialogFormVisible = false;
+				}else{
+					this.$message({
+						message: response.message,
+						type: 'error'
+					});
+				}
+				this.loadData();
+			}).catch(error => {
+			this.$router.push({ path: '/login' });
+			})
+
+
+            
+            this.dialogFormVisible = false;
+            
+          
+      },
 	  deleteRow(index, rows) {
-       this.$confirm('是否确认删除该文件, 是否继续?', '提示', {
+       this.$confirm('是否确认禁用该项目, 是否继续?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
             }).then(() => {
-            this.$message({
-                type: 'success',
-                message: '删除成功!'
-            });
+			 rows.state = '20';
+             RequestPost("/community/update",rows).then(response => {
+						
+						//this.logining = false; 
+				if(response.code=='0000'){
+					this.$message({
+						message: response.message,
+						type: 'success'
+					});  
+					this.dialogFormVisible = false;
+				}else{
+					this.$message({
+						message: response.message,
+						type: 'error'
+					});
+				}
+				this.loadData();
+			}).catch(error => {
+			this.$router.push({ path: '/login' });
+			})
+
             this.dialogFormVisible = false;
             
             }).catch(() => {

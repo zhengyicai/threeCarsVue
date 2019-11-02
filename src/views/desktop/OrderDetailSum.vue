@@ -15,56 +15,51 @@
 				
 			</el-form>
 		</el-col> -->
-        <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
+    <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" style="text-align:right" >
-				<!-- <el-form-item>
-					<el-input  placeholder="姓名"></el-input>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" v-on:click="getUsers">查询</el-button>
-				</el-form-item> -->
 				
-				<el-form-item>
-					<el-button type="primary" @click="add()">新增</el-button>
+			
+				
+				<el-form-item  style="text-align:right">
+					<el-button type="primary" @click="export1()">导出数据</el-button>
 				</el-form-item>
+		
 			</el-form>
 		</el-col>
         
-		<el-table :data="datalist" highlight-current-row v-loading="listLoading" style="width: 100%;">
+		<el-table :data="datalist" highlight-current-row v-loading="listLoading" style="width: 100%; margin-top:20px">
 		
 			
-			<el-table-column prop="name" label="商品名" width="150" sortable>
+			<el-table-column prop="time1" label="日期" width="150" sortable>
 			</el-table-column>
-			<el-table-column prop="price" label="价格" width="250" sortable>
+			<!-- <el-table-column prop="goods1" label="杂纸" width="250" sortable>
 			</el-table-column>
-      <el-table-column prop="remark" label="标识" width="150" sortable>
+				<el-table-column prop="goods2" label="纯花纸（如啤酒箱等）" width="250" sortable>
 			</el-table-column>
-			<el-table-column  label="创建时间" min-width="120">
-				<template slot-scope="scope">{{ scope.row.createTime | moment('YYYY-MM-DD') }}</template>
+				<el-table-column prop="goods3" label="价格" width="250" sortable>
 			</el-table-column>
-			<el-table-column  label="更新时间" min-width="120">
-				<template slot-scope="scope">{{ scope.row.updateTime | moment('YYYY-MM-DD') }}</template>
+    	<el-table-column prop="goods4" label="纯黄纸（如快递箱等）" width="250" sortable>
+			</el-table-column> -->
+
+
+      <el-table-column :prop="a.remark" :label="a.name" :value="a" :key="a"  v-for=" a in options1" width="250" sortable>
 			</el-table-column>
-            <el-table-column prop="remark" label="备注" width="180" sortable>
-			</el-table-column>
-			<el-table-column  label="状态" min-width="240">
-				<template slot-scope="scope">{{ state(scope.row.state)}}</template>
-			</el-table-column>
+
+
+     
             
 			
 			
-			<el-table-column label="操作" min-width="250">
-				<template scope="scope">
+			<!-- <el-table-column label="操作" min-width="250"> -->
+				<!-- <template scope="scope">
 				 <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">编辑</el-button>
-				<!--<el-button size="small" type="primary"  v-if='scope.row.sysUserId=="" ||  scope.row.sysUserId ==null' @click="addAdmin(scope.$index,scope.row)">新增物业</el-button>
-				<el-button size="small" type="warning"  v-if='scope.row.sysUserId!="" ||  scope.row.sysUserId !=null' @click="editAdmin(scope.$index,scope.row)">修改物业</el-button> -->
-                <el-button size="small"   v-if='scope.row.state=="10"' type="warning" @click="deleteRow(scope.$index, scope.row)">禁用</el-button>
-                 <el-button size="small"  v-if='scope.row.state=="20"'  type="primary" @click="showRow(scope.$index, scope.row)">启用</el-button>
+				
+                <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button>
                  <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">详情</el-button>
-				</template>
-			</el-table-column>
-		</el-table>
-
+				</template> -->
+			<!-- </el-table-column> -->
+		<!-- </el-table> -->
+    </el-table>
 		<el-pagination
 		 	class="pull-right clearfix"
 			@current-change="handleCurrentChange"
@@ -82,9 +77,6 @@
                     </el-form-item>    
                     <el-form-item label="*价格">
                         <el-input v-model="subData.price"  placeholder="请输入价格"></el-input>
-                    </el-form-item>
-                    <el-form-item label="*标识">
-                        <el-input v-model="subData.remark"  placeholder="请输入标识"></el-input>
                     </el-form-item>
                     
 
@@ -133,7 +125,7 @@
 </template>
 <script>
 	//2
-	import { RequestPost } from '../../api/api';
+	import { RequestPost, fileUrls } from '../../api/api';
     import { RequestGet } from '../../api/api';
 	import { url } from '../../api/api';
 	import {timeFormat} from '../../api/format';
@@ -185,8 +177,7 @@
             this.subData = {
                 name: '',
                 price: '',
-                state: '10',
-                remark:''
+                state: '10'
             };
 
 
@@ -232,6 +223,67 @@
            this.dialogFormVisible1 = false;    
       },
 
+      export1(){
+            //excel数据导出
+            require.ensure([], () => {
+            const {
+                export_json_to_excel
+            } = require('../../assets/js/Export2Excel');
+
+
+
+          
+            const tHeader = this.tHeader1;
+            const filterVal = this.filterVal1;
+          //  alert(tHeader);
+          //  alert(filterVal);
+
+           
+           
+            
+           
+
+            
+
+
+
+
+            RequestGet("/order/orderDetailSumMouthFindAll").then(response => {
+						if(response.code == '0000'){
+                                
+                                const list = response.data;
+
+                                // for(var i =0 ;i<list.length;i++){
+                                //     list[i].weight = isWeight(list[i].weight);
+                                //     list[i].type = isOrderState(list[i].type);
+                                //    list[i].createTime = moment(list[i].createTime).format("YYYY-MM-DD HH:mm:ss");
+                                //    list[i].doorTime = moment(list[i].doorTime).format("YYYY-MM-DD HH:mm:ss");
+                                //     //list[i].createTime = this.formatDate1(list[i].createTime);
+                                //     //list[i].doorTime = this.formatDate1(list[i].doorTime);
+                                   
+                                // }
+
+                                const data = this.formatJson(filterVal, list);
+
+                              //  alert(data);
+                                export_json_to_excel(tHeader, data, '列表excel');
+                            }
+                        
+            }).catch(error => {
+                            this.$router.push({ path: '/login' });
+                            
+            })  
+
+
+            
+        })
+
+
+      },
+      formatJson(filterVal, jsonData) {
+        return jsonData.map(v => filterVal.map(j => v[j]))
+       },
+
       open(){
          if(this.validate1() == false){
 					  return;
@@ -252,8 +304,7 @@
 								message: response.message,
 								type: 'error'
 							});
-            }
-           this.dialogFormVisible1 = false;
+						}
 						this.loadData();
             }).catch(error => {
             this.$router.push({ path: '/login' });
@@ -275,8 +326,7 @@
 								type: 'error'
 							});
 						}
-            this.loadData();
-            this.dialogFormVisible1 = false;
+						this.loadData();
             }).catch(error => {
             this.$router.push({ path: '/login' });
             })
@@ -285,7 +335,7 @@
           
       },  
 	  deleteRow(index, rows) {
-       this.$confirm('确认禁用, 是否继续?', '提示', {
+       this.$confirm('确认删除, 是否继续?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
@@ -294,9 +344,8 @@
             //     type: 'success',
             //     message: '删除成功!'
             // });
-            rows.state = '20';
 
-            RequestPost("/goods/update",rows).then(response => {
+            RequestPost("/goods/delete",rows).then(response => {
 						
 						//this.logining = false; 
                 if(response.code=='0000'){
@@ -328,43 +377,6 @@
             });
       },
 
-       showRow(index, rows) {
-      
-            // this.$message({
-            //     type: 'success',
-            //     message: '删除成功!'
-            // });
-            rows.state = '10';
-
-            RequestPost("/goods/update",rows).then(response => {
-						
-						//this.logining = false; 
-                if(response.code=='0000'){
-                    this.$message({
-                        message: response.message,
-                        type: 'success'
-                    });  
-                    this.dialogFormVisible = false;
-                }else{
-                    this.$message({
-                        message: response.message,
-                        type: 'error'
-                    });
-                }
-                this.loadData();
-            }).catch(error => {
-            this.$router.push({ path: '/login' });
-            })
-
-
-            
-            this.dialogFormVisible = false;
-            
-          
-      },
-
-
-
       validate1(){  //新增（修改）项目
 	
 	
@@ -390,11 +402,35 @@
 	
 	loadData(){
 
-		RequestGet("/goods/findAll",this.page).then(response => {
+		RequestGet("/order/orderDetailSumFindAll",this.page).then(response => {
 						if(response.code == '0000'){
 								 this.datalist = response.data;
 								 this.total = response.page.totalCount; 
 								 this.totalsize  = response.page.pageSize;
+						 }
+					
+		}).catch(error => {
+						 this.$router.push({ path: '/login' });
+						
+    })  
+    
+    RequestGet("/goods/goodsList").then(response => {
+						if(response.code == '0000'){
+                 this.options1 = response.data;
+                 this.tHeader1 = [];
+                 this.filterVal1 = [];
+
+                  this.tHeader1.push("日期");
+                 this.filterVal1.push("time1");
+                  for(var i = 0;i<response.data.length;i++){
+                      //this.tHeader1[i] = response.data[i].name;
+                      this.tHeader1.push(response.data[i].name);
+                      this.filterVal1.push(response.data[i].remark);
+
+                  }
+                  //alert(this.tHeader1);
+
+
 						 }
 					
 		}).catch(error => {
@@ -549,8 +585,9 @@
 			pageSize:PageSize,   //一页显示的条数
             criteria:''
 		},
-		datalist:[],
-		
+    datalist:[],
+    tHeader1:[],
+    filterVal1:[],
     listLoading: false,
     dialogFormVisible1:false,
 		form:{},
@@ -565,7 +602,7 @@
         buildingId:"",
         unitNo:"",
         formtitle:"",
-         options: [{
+        options: [{
           value: '10',
           label: '管理机'
         }, {
@@ -575,6 +612,7 @@
           value: '30',
           label: '单元门口机'
         }],
+        options1: [{name:'',remark:''}],
 
       };
     }

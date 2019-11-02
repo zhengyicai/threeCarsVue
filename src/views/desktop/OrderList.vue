@@ -1,6 +1,6 @@
 <template> 
  <div class="block">   
-	 	<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
+	 	<el-col :span="20" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true">
 				<el-form-item style="width:300px">
 					<el-input v-model="page.criteria" @keyup.enter.native="query"   placeholder="请输入[姓名|手机号]" style="width:300px"></el-input>
@@ -12,14 +12,14 @@
 				
 			</el-form>
 		</el-col>
-        <!-- <el-col :span="4" class="toolbar" style="padding-bottom: 0px;">
+        <el-col :span="4" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true">
 				
 				<el-form-item  style="text-align:right">
-					<el-button type="primary" @click="add()">新增</el-button>
+					<el-button type="primary" @click="export1()">导出数据</el-button>
 				</el-form-item>
 			</el-form>
-		</el-col> -->
+		</el-col>
       
         
 		<el-table :data="datalist" highlight-current-row v-loading="listLoading" style="width: 100%;">
@@ -130,6 +130,22 @@
         </el-dialog>
 
 
+        <el-dialog   title="修改最终重量" :visible.sync="dialogPrice2" >
+			<el-form ref="subData"  label-width="100px" @submit.prevent="onSubmit" style="margin:0px;">
+                <el-form-item label="最终重量">
+                        <el-input style="width:60%"  v-model="sellPrice2" type="number" placeholder="请输入最终重量"></el-input>
+                </el-form-item>
+                
+			</el-form>	
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="dialogPrice2 = false">取 消</el-button>
+				<el-button  type="primary" @click="open4()">确 定</el-button>
+			</div>
+
+			
+        </el-dialog>
+
+
          <el-dialog   :title="formtitle" :visible.sync="dialogFormVisibleEqu" width="70%" >
           
             <el-row>
@@ -163,7 +179,7 @@
                         <el-table-column
                             prop="goodsName"
                             label="商品名称"
-                            width="120">
+                            width="180">
                         </el-table-column>
                         <el-table-column
                             prop="buyWeight"
@@ -181,16 +197,13 @@
                             width="120">
                             <template slot-scope="scope">{{ scope.row.buyWeight * scope.row.buyPrice }}</template>
                         </el-table-column>
-                        <el-table-column
-                            label=""
-                            width="60">
-                        </el-table-column>
+                       
                         <el-table-column
                             prop="sellWeight"
                             label="最终确认重量"
                             width="120">
                         </el-table-column>
-                        <el-table-column
+                        <!-- <el-table-column
                             prop="sellPrice"
                             label="回收价"
                             width="120">
@@ -200,6 +213,21 @@
                             label="回收总额"
                             width="125">
                             <template slot-scope="scope">{{ scope.row.sellWeight * scope.row.sellPrice }}</template>
+                        </el-table-column> -->
+                        <el-table-column label="操作" min-width="120">
+                                <template scope="scope">
+                                <!-- <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">编辑</el-button>
+                                <el-button size="small" type="primary"  v-if='scope.row.sysUserId=="" ||  scope.row.sysUserId ==null' @click="addAdmin(scope.$index,scope.row)">新增物业</el-button>
+                                <el-button size="small" type="warning"  v-if='scope.row.sysUserId!="" ||  scope.row.sysUserId !=null' @click="editAdmin(scope.$index,scope.row)">修改物业</el-button>
+                                <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button> -->
+                                <!-- <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">授权设备</el-button>
+                                <el-button size="small" type="primary"   @click="updateRoom(scope.row)">房卡管理</el-button> -->
+                                <el-button size="small" type="warning"   @click="updateRoom2(scope.row)">修改最终重量</el-button>
+                                <!-- <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">详情</el-button> -->
+                                <!-- <el-button size="small" type="danger" @click="deleteRow(scope.$index,scope.row)">删除</el-button> -->
+
+                            
+                                </template>
                         </el-table-column>
                         
                         </el-table>
@@ -268,6 +296,60 @@
            
 
       },
+
+     formatDate1(now) { 
+        var year=now.getFullYear(); 
+        var month=now.getMonth()+1; 
+        var date=now.getDate(); 
+        var hour=now.getHours(); 
+        var minute=now.getMinutes(); 
+        var second=now.getSeconds(); 
+        return year+"-"+month+"-"+date+" "+hour+":"+minute+":"+second; 
+    }, 
+      export1(){
+            //excel数据导出
+            require.ensure([], () => {
+            const {
+                export_json_to_excel
+            } = require('../../assets/js/Export2Excel');
+            const tHeader = ['城市','区县', '城镇', '详细地址', '用户名','手机号', '重量', '预约上门时间','创建时间','状态','用户成交总价','回收总价'];
+            const filterVal = ['city','country', 'town', 'detail', 'contactName','contactMobile', 'weight', 'doorTime', 'createTime','type','buyprice','sellprice'];
+
+
+
+            RequestGet("/order/findAllDownLoad",this.page).then(response => {
+						if(response.code == '0000'){
+                                
+                                const list = response.data;
+
+                                for(var i =0 ;i<list.length;i++){
+                                    list[i].weight = isWeight(list[i].weight);
+                                    list[i].type = isOrderState(list[i].type);
+                                   list[i].createTime = moment(list[i].createTime).format("YYYY-MM-DD HH:mm:ss");
+                                   list[i].doorTime = moment(list[i].doorTime).format("YYYY-MM-DD HH:mm:ss");
+                                    //list[i].createTime = this.formatDate1(list[i].createTime);
+                                    //list[i].doorTime = this.formatDate1(list[i].doorTime);
+                                   
+                                }
+
+                                const data = this.formatJson(filterVal, list);
+                                export_json_to_excel(tHeader, data, '列表excel');
+                            }
+                        
+            }).catch(error => {
+                            this.$router.push({ path: '/login' });
+                            
+            })  
+
+
+            
+        })
+
+
+      },
+       formatJson(filterVal, jsonData) {
+        return jsonData.map(v => filterVal.map(j => v[j]))
+       },
       deleteItem(){
 
       },
@@ -387,13 +469,15 @@
          this.orderId = rows.id;
          this.sellPrice = rows.sellprice;
 
-       
-
-     
-         
-         
 
     },  
+    updateRoom2(rows){
+        this.dialogPrice2 = true;
+        this.orderDetailId = rows.id;
+        // alert(rows.id);
+        this.sellPrice2 = rows.sellWeight;
+
+    },
       
       isSelectedOne(e){
           this.selectedOneData = [];
@@ -459,6 +543,40 @@
                 this.dialogPrice = false;
             }
             this.loadData();
+        }).catch(error => {
+        this.$router.push({ path: '/login' });
+        })
+          
+
+
+
+
+      },
+      open4(){
+          
+            var person = {
+                id:this.orderDetailId,
+                sellWeight:this.sellPrice2
+            }
+
+           RequestPost("/order/updateFinishPrice",person).then(response => {
+						
+						//this.logining = false; 
+            if(response.code=='0000'){
+                this.$message({
+                    message: response.message,
+                    type: 'success'
+                });  
+                this.dialogPrice2 = false;
+                this.loadRooms();
+            }else{
+                this.$message({
+                    message: response.message,
+                    type: 'error'
+                });
+                this.dialogPrice2 = false;
+            }
+            //this.loadData();
         }).catch(error => {
         this.$router.push({ path: '/login' });
         })
@@ -690,7 +808,10 @@
         dialogFormVisibleEqu:false,  //显示设备列表
         dialogPrice:false, //显示结算界面
         sellPrice:0,
+        dialogPrice2:false, //显示最终重量界面
+        sellPrice2:0,
         orderId:"",
+        orderDetailId:"",
         parentMenuOneData:[],
         parentMenuTwoData:[],
         selectedTwoData:[],

@@ -12,27 +12,30 @@
 				
 			</el-form>
 		</el-col>
-        <!-- <el-col :span="4" class="toolbar" style="padding-bottom: 0px;">
-			<el-form :inline="true">
+        <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
+			<el-form :inline="true" style="text-align:right" >
+				<!-- <el-form-item>
+					<el-input  placeholder="姓名"></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" v-on:click="getUsers">查询</el-button>
+				</el-form-item> -->
 				
-				<el-form-item  style="text-align:right">
+				<el-form-item>
 					<el-button type="primary" @click="add()">新增</el-button>
 				</el-form-item>
 			</el-form>
-		</el-col> -->
+		</el-col>
       
         
 		<el-table :data="datalist" highlight-current-row v-loading="listLoading" style="width: 100%;">
 		
 			
-			<el-table-column prop="name" label="昵称" width="150" sortable>
+			<el-table-column prop="name" label="昵称" width="120" sortable>
 			</el-table-column>
-            <el-table-column prop="definedName" label="默认姓名" width="150" sortable>
+            <el-table-column prop="userName" label="姓名" width="120" sortable>
 			</el-table-column>
-			<el-table-column prop="definedMobile" label="默认手机号" width="150" sortable>
-			</el-table-column>
-            <el-table-column  label="默认地址" width="350">
-                <template slot-scope="scope">{{(scope.row.definedCity+scope.row.definedCountry+scope.row.definedTown+scope.row.definedDetail)==0?"":(scope.row.definedCity+scope.row.definedCountry+scope.row.definedTown+scope.row.definedDetail)}}</template>
+			<el-table-column prop="mobile" label="手机号" width="150" sortable>
 			</el-table-column>
 			<el-table-column  label="创建时间" min-width="170">
 				<template slot-scope="scope">{{ scope.row.createTime | moment('YYYY-MM-DD HH:mm:ss') }}</template>
@@ -67,12 +70,11 @@
                 <el-button size="small" type="danger" @click="deleteRow(scope.$index, scope.row)">删除</el-button> --> 
                 <!-- <el-button size="small" type="primary"  @click="edit(scope.$index,scope.row)">授权设备</el-button>
                 <el-button size="small" type="primary"   @click="updateRoom(scope.row)">房卡管理</el-button> -->
-                 <!-- <el-button size="small" type="primary" @click="setRow(scope.$index, scope.row)">设为车夫</el-button> -->
-                <el-button size="small" type="primary" @click="showRelationPanel(scope.$index,scope.row)">地址</el-button>
-                <!-- <el-button size="small" type="danger" @click="deleteRow(scope.$index,scope.row)">删除</el-button> -->
+                <el-button size="small" type="primary" @click="setRow(scope.$index, scope.row)">修改</el-button>
+                <el-button size="small" type="warning" @click="setDelete(scope.$index, scope.row)">删除</el-button>
 
-                <el-button size="small" type="warning" v-if="scope.row.state==='10'"   @click="updateState(scope.row,'20')" >禁用</el-button>
-                <el-button size="small" type="success" v-if="scope.row.state==='20'" @click="updateState(scope.row,'10')" >启用</el-button>
+                <!-- <el-button size="small" type="warning" v-if="scope.row.state==='10'"   @click="updateState(scope.row,'20')" >禁用</el-button>
+                <el-button size="small" type="success" v-if="scope.row.state==='20'" @click="updateState(scope.row,'10')" >启用</el-button> -->
                 
 				</template>
 			</el-table-column>
@@ -125,6 +127,96 @@
 				<el-button type="primary" @click="openAdmin()">确 定</el-button>
 			</div>
         </el-dialog>
+
+
+        <el-dialog   title="新增车夫" :visible.sync="dialogFormAdminAddVisible"  style="width: 80%;margin-left:10%">
+			<el-form ref="form1" :model="form1" label-width="100px" @submit.prevent="onSubmit" style="margin:20px;">
+                <el-form-item label="选择用户" v-if="choose1">
+					<el-button type="primary" @click="showSelect()">选择用户</el-button>{{currObj.name}}
+				</el-form-item>
+
+				<el-form-item label="*姓名">
+					<el-input placeholder="请输入姓名" v-model="form1.userName"></el-input>
+				</el-form-item>
+			
+				<el-form-item label="*手机号">
+					<el-input placeholder="请输入手机号" v-model="form1.mobile"></el-input>
+				</el-form-item>
+                <el-form-item label="*身份证号码">
+					<el-input placeholder="请输入身份证号码" v-model="form1.card"></el-input>
+				</el-form-item>
+                <el-form-item label="*住址">
+					<el-input placeholder="请输入住址" v-model="form1.address"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="dialogFormAdminAddVisible = false">取 消</el-button>
+				<el-button type="primary" @click="openAdmin()">确 定</el-button>
+			</div>
+        </el-dialog>
+
+
+
+        <el-dialog   title="选择用户" :visible.sync="dialogFormAdminAddSelectVisible"  style="width: 90%;margin-left:10%">
+           <el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
+                <el-form :inline="true">
+                    <el-form-item style="width:300px">
+                        <el-input v-model="mobile"    placeholder="请输入[姓名|手机号]" style="width:300px"></el-input>
+                    </el-form-item>
+                    
+
+
+
+
+                    <el-form-item  >
+                        <el-button type="primary" v-on:click="selectMobile">查询</el-button>
+                    </el-form-item>
+                
+                    
+                </el-form>
+
+                <el-col style="width:100%">
+                        <!-- <el-radio-group v-model="radio">
+                            <el-radio   v-for=" m in mobileList" :key="m.id" :label="m.id"><div>昵称:{{m.name}}</div>&nbsp;&nbsp;联系人:{{m.contactName}}&nbsp;&nbsp;联系方式:{{m.contactMobile}}</el-radio>
+                           
+                        </el-radio-group> -->
+                       <!-- {{mobileList}} -->
+
+                       <el-table
+                            ref="singleTable"
+                            :data="mobileList"
+                            highlight-current-row
+                            @current-change="handleSelectionChange"
+                            style="width: 100%">
+                            <el-table-column
+                            type="index"
+                            width="50">
+                            </el-table-column>
+                            <el-table-column
+                            property="name"
+                            label="微信昵称"
+                            width="120">
+                            </el-table-column>
+                            <el-table-column
+                            property="contactName"
+                            label="联系人"
+                            width="120">
+                            </el-table-column>
+                            <el-table-column
+                            property="contactMobile"
+                            label="联系方式"
+                            >
+                            </el-table-column>
+                        </el-table>
+                </el-col>
+
+            </el-col>
+			<!-- <div slot="footer" class="dialog-footer">
+				<el-button @click="dialogFormAdminAddSelectVisible = false">取 消</el-button>
+				<el-button type="primary" @click="openAdmin()">确 定</el-button>
+			</div> -->
+        </el-dialog>
+
 
 
 
@@ -251,15 +343,54 @@
             this.loadData();
         },
 
+
+      handleSelectionChange(val) {
+       
+         this.dialogFormAdminAddSelectVisible = false
+         this.currObj = val;
+         //this.multipleSelection = val;
+      },  
+
       add(){
+            this.dialogFormAdminAddVisible = true;
+            this.currObj = "";
+            this.form1.userName = '';
+            this.form1.mobile = '';
+            this.form1.address = '';
+            this.form1.card = '';
+            this.choose1= true;
            
+
+      },
+      selectMobile(){
+          if(this.mobile ==null|| this.mobile.trim()=="" ){
+              return;
+          }
+
+            RequestGet("/resident/findSelectAll",{mobile:this.mobile}).then(response => {
+            if(response.code == '0000'){
+               // alert(response.data);        
+                this.mobileList  = response.data;
+                    
+            }
+					
+        }).catch(error => {
+                        this.$router.push({ path: '/login' });
+                        
+        })
+
+
+
+      },
+      showSelect(){
+            this.dialogFormAdminAddSelectVisible = true;
 
       },
       openAdmin(){
           if(this.form1.userName =="" ||this.form1.userName.trim() =="" || this.form1.userName == null){
 				this.$message({
 					type: 'error',
-					message: "用户名不能为空"
+					message: "姓名不能为空"
 				});          
 				return false;
           }
@@ -271,13 +402,32 @@
 				});          
 				return false;
           }
+
+          if(this.form1.card =="" ||this.form1.card.trim() =="" || this.form1.card == null){
+				this.$message({
+					type: 'error',
+					message: "身份证号码不能为空"
+				});          
+				return false;
+          }
+           if(this.currObj.residentId =="" || this.currObj.residentId == null){
+				this.$message({
+					type: 'error',
+					message: "用户不能为空"
+				});          
+				return false;
+          }
+         
           
 
            var opt ={             
-                id:this.form1.id,
+                id:this.currObj.residentId,
                 residentType:"20",
                 mobile:this.form1.mobile,
-                userName:this.form1.userName
+                userName:this.form1.userName,
+                card:this.form1.card,
+                address:this.form1.address
+
             }
 
             RequestPost("/resident/updateCars",opt).then(response => {
@@ -288,7 +438,7 @@
                         message: response.message,
                         type: 'success'
                     });  
-                    this.dialogFormAdminVisible = false;
+                    this.dialogFormAdminAddVisible = false;
                 }else{
                     this.$message({
                         message: response.message,
@@ -306,55 +456,70 @@
 
       },  
       setRow(index, rows){
-
+          this.choose1= false;  
           this.form1 = rows;
-          this.dialogFormAdminVisible= true;
-        
-        //   this.$confirm('确认该操作, 是否继续?', '提示', {
-        //     confirmButtonText: '确定',
-        //     cancelButtonText: '取消',
-        //     type: 'warning'
-        //     }).then(() => {
+          this.currObj.residentId = rows.id;
+          //this.currObj.name = rows.userName;
+          this.dialogFormAdminAddVisible= true;
+      },
+      setDelete(index, rows){
+          this.choose1= false;  
+          this.form1 = rows;
+          this.form1.residentType = '10';
+          this.currObj.residentId = rows.id;
+
+          
+           this.$confirm('确认该操作, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+            }).then(() => {
+
+                 var opt ={             
+                    id:this.currObj.residentId,
+                    residentType:"10",
+                    mobile:this.form1.mobile,
+                    userName:this.form1.userName,
+                    card:this.form1.card,
+                    address:this.form1.address
+
+                }
+
+                RequestPost("/resident/updateCars",opt).then(response => {
+                            
+                            
+                    if(response.code=='0000'){
+                        this.$message({
+                            message: response.message,
+                            type: 'success'
+                        });  
+                        //this.dialogFormAdminAddVisible = false;
+                    }else{
+                        this.$message({
+                            message: response.message,
+                            type: 'error'
+                        });
+                    }
+                    this.loadData();
+                }).catch(error => {
+                this.$router.push({ path: '/login' });
+                })
+
+
+
                
 
-        //         var opt ={
-                   
-        //             id:rows.id,
-        //             residentType:"20"
-        //         }
+               
+            }).catch(() => {
+            this.$message({
+                type: 'info',
+                message: '已取消删除'
+            });          
+            });  
 
-        //         RequestPost("/resident/updateCars",opt).then(response => {
-                            
-                          
-        //             if(response.code=='0000'){
-        //                 this.$message({
-        //                     message: response.message,
-        //                     type: 'success'
-        //                 });  
-        //                 this.dialogFormVisible = false;
-        //             }else{
-        //                 this.$message({
-        //                     message: response.message,
-        //                     type: 'error'
-        //                 });
-        //             }
-        //             this.loadData();
-        //         }).catch(error => {
-        //         this.$router.push({ path: '/login' });
-        //         })
-
-
-                
-        //         this.dialogFormVisible = false;
-                
-        //         }).catch(() => {
-        //         this.$message({
-        //             type: 'info',
-        //             message: '已取消删除'
-        //         });          
-        //     });
-
-
+          
+          //this.currObj.name = rows.userName;
+          //this.dialogFormAdminAddVisible= true;
       },
       showRelationPanel(index, rows){
           this.dialogFormVisible= true;
@@ -780,10 +945,19 @@
 		currentPage:1,
 		page:{
 			pageSize:PageSize,   //一页显示的条数
-            criteria:''
+            criteria:'',
+            type:'20'
+
         },
+        currObj:{
+            name:'',
+            residentId:''
+
+        }, //选择的用户
         formtitle:"用户住房信息",
         datalist:[],
+        mobile:"",
+        mobileList:[],  //查询的用户列表
         communityId:'',
         residentId:'',
 		residRooms:[],
@@ -794,6 +968,9 @@
         dialogFormVisible:false,
         dialogFormVisibleEqu:false,  //显示设备列表
         dialogFormAdminVisible:false, //显示车夫信息
+        dialogFormAdminAddVisible:false, //显示车夫信息
+        dialogFormAdminAddSelectVisible:false,
+        radio:3,
         
         parentMenuOneData:[],
         parentMenuTwoData:[],
@@ -807,6 +984,7 @@
         userEquipmentList:[],
         residentId:"",
         updateDate:false,
+        choose1:true,
 
 
         // 房卡
@@ -841,7 +1019,9 @@
         addressList:[],
         form1:{
             userName:"",
-            mobile:""
+            mobile:"",
+            card:"",
+            address:""
         }
        
       };
